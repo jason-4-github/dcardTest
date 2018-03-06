@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
-import App from './constructors/App';
+import AdminContainer from './containers/AdminContainer';
 import configureStore from './store/configureStore';
 import registerServiceWorker from './registerServiceWorker';
 
@@ -13,7 +13,7 @@ const store = configureStore();
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <AdminContainer />
   </Provider>,
   document.getElementById('root')
 );
