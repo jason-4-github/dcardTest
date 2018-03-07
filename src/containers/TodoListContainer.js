@@ -17,15 +17,18 @@ class TodoListContainer extends React.Component {
     this.editTaskClick = this.editTaskClick.bind(this);
     this.isEditFinish = this.isEditFinish.bind(this);
   }
+
   // empty the input
   emitEmpty = () => {
     this.userNameInput.focus();
     this.setState({ inputText: '' });
   }
+
   // input text change
   onChangeInputText = (e) => {
     this.setState({ inputText: e.target.value });
   }
+
   // add button click event
   addTaskClick = () => {
     const { inputText, todoListArrs, taskCount } = this.state;
@@ -47,7 +50,9 @@ class TodoListContainer extends React.Component {
       taskCount: taskCount + 1,
     });
   }
+
   editInputOnChange = (e) => { this.setState({ editOnChange: e.target.value }); }
+
   // check edit finish
   isEditFinish = (e) => {
     // console.log('ffff');
@@ -58,8 +63,10 @@ class TodoListContainer extends React.Component {
     this.setState({
       isEdit: false,
       todoListArrs,
+      editOnChange: '',
     })
   }
+
   // task edit click event
   editTaskClick = (e) => {
     const { todoListArrs } = this.state;
@@ -76,9 +83,27 @@ class TodoListContainer extends React.Component {
     this.setState({
       todoListArrs,
       isEdit: true,
-    })
-    // console.log(e.target, isItemIndex);
+    });
   }
+
+  deleteTaskClick = (e) => {
+    const { todoListArrs } = this.state;
+    const leftObjs = _.remove(todoListArrs, (obj) => { return obj.id !== parseInt(e.target.name, 10)});
+    // console.log(e.target.name, isItemIndex, parseInt(e.target.name, 10));
+    this.setState({
+      todoListArrs: leftObjs,
+    });
+  }
+
+  isFinishTag = (e) => {
+    const { todoListArrs } = this.state;
+    const isItemIndex = _.findIndex(todoListArrs, (obj, key) => { return obj.id == e.target.id });
+    todoListArrs[isItemIndex].finish = todoListArrs[isItemIndex].finish ? 0 : 1;
+    this.setState({
+      todoListArrs,
+    });
+  }
+
   render() {
     const { inputText, isEdit } = this.state;
     const suffix = inputText ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
@@ -105,13 +130,14 @@ class TodoListContainer extends React.Component {
               <List.Item
                 actions={!isEdit ? [
                   <a name={item.id} onClick={this.editTaskClick}>edit</a>,
-                  <a>more</a>
+                  <a name={item.id} onClick={this.deleteTaskClick}>delete</a>
                 ] : ''}
               >
                 <List.Item.Meta
-                  avatar={<Icon type="tag-o" style={{ fontSize: '25px' }} />}
-                  description={item.value}
+                  avatar={!item.finish ? <Icon type="tag-o" style={{ fontSize: '25px' }} /> : <Icon type="check" style={{ fontSize: '25px' }} />}
+                  description={<b id={item.id} onClick={this.isFinishTag} style={{ cursor: 'pointer' }}>{item.value}</b>}
                 />
+                <div style={{ cursor: 'pointer', width: '100%' }}></div>
               </List.Item>
             )}
           />
