@@ -1,7 +1,10 @@
 
 import React from 'react';
-import { Input, Icon, Row, Col, List, Avatar, Button } from 'antd';
+import { Input, Icon, Row, Col, List, Avatar, Button, Radio, message } from 'antd';
 import _ from 'lodash';
+
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
 
 class TodoListContainer extends React.Component {
   constructor(props) {
@@ -12,6 +15,8 @@ class TodoListContainer extends React.Component {
       taskCount: 0,
       isEdit: false,
       editOnChange: '',
+      conditionSelect: 'overview',
+      conditionDisplay: [],
     };
     this.addTaskClick = this.addTaskClick.bind(this);
     this.editTaskClick = this.editTaskClick.bind(this);
@@ -31,11 +36,11 @@ class TodoListContainer extends React.Component {
 
   // add button click event
   addTaskClick = () => {
-    const { inputText, todoListArrs, taskCount } = this.state;
+    const { inputText, todoListArrs, taskCount, conditionSelect, conditionDisplay } = this.state;
 
     // consider the empty words
     if (inputText.trim() === '') {
-      alert('please check the input words again!');
+      message.error('please check the input words again!', 2);
       this.setState({ inputText: '' });
       return;
     }
@@ -44,10 +49,12 @@ class TodoListContainer extends React.Component {
     obj.finish = 0;
     obj.id = taskCount;
     todoListArrs.push(obj);
+    if(conditionSelect === 'unfinish') conditionDisplay.push(obj);
     this.setState({
       inputText: '',
       todoListArrs,
       taskCount: taskCount + 1,
+      conditionDisplay,
     });
   }
 
@@ -87,12 +94,15 @@ class TodoListContainer extends React.Component {
   }
 
   deleteTaskClick = (e) => {
-    const { todoListArrs } = this.state;
+    const { todoListArrs, conditionDisplay } = this.state;
     const leftObjs = _.remove(todoListArrs, (obj) => { return obj.id !== parseInt(e.target.name, 10)});
+    const leftConditionObjs = conditionDisplay.length === 0 ? [] : _.remove(conditionDisplay, (obj) => { return obj.id !== parseInt(e.target.name, 10)});
     // console.log(e.target.name, isItemIndex, parseInt(e.target.name, 10));
     this.setState({
       todoListArrs: leftObjs,
+      conditionDisplay: leftConditionObjs,
     });
+    message.success('Delete Tasks Success!!', 1);
   }
 
   isFinishTag = (e) => {
@@ -104,8 +114,37 @@ class TodoListContainer extends React.Component {
     });
   }
 
+  radioConditionOnChange = (e) => {
+    const { todoListArrs } = this.state;
+    const tempOptionsArrs = [];
+
+    _.map(todoListArrs, (value) => {
+      if (value.finish === 1 && e.target.value === 'finish') tempOptionsArrs.push(value);
+      else if(value.finish === 0 && e.target.value === 'unfinish') tempOptionsArrs.push(value);
+    });
+    console.log(tempOptionsArrs);
+    this.setState({
+      conditionSelect: e.target.value,
+      conditionDisplay: tempOptionsArrs,
+    });
+  }
+
+  clearFinishTask = () => {
+    console.log('fff')
+    const { todoListArrs, conditionDisplay, conditionSelect } = this.state;
+    const tempTotalArrs = [];
+    const tempOptionsArrs = [];
+    _.map(todoListArrs, (value) => { if (value.finish === 0) tempTotalArrs.push(value); });
+    _.map(conditionDisplay, (value) => { if (value.finish === 0) tempOptionsArrs.push(value); });
+    this.setState({
+      todoListArrs: tempTotalArrs,
+      conditionDisplay: conditionSelect === 'finish' ? []: tempOptionsArrs,
+    });
+    message.success('Clear Finish Tasks Success!!', 1);
+  }
+
   render() {
-    const { inputText, isEdit } = this.state;
+    const { inputText, isEdit, todoListArrs, conditionSelect, conditionDisplay } = this.state;
     const suffix = inputText ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
     return (
       <Row>
@@ -114,8 +153,8 @@ class TodoListContainer extends React.Component {
         <Col span={10}>
           <div style={{ display: 'flex' }}>
             <Input
-              placeholder="Enter your username"
-              prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
+              placeholder="Type Tasks Content Here"
+              prefix={<Icon type="edit" style={{ color: 'rgba(0,0,0,.25)' }} />}
               suffix={suffix}
               value={inputText}
               onChange={this.onChangeInputText}
@@ -123,24 +162,34 @@ class TodoListContainer extends React.Component {
             />
             <Button size={"large"} onClick={this.addTaskClick} disabled={isEdit || false}>Add Task</Button>
           </div>
-          <List
-            itemLayout="horizontal"
-            dataSource={this.state.todoListArrs}
-            renderItem={item => (
-              <List.Item
-                actions={!isEdit ? [
-                  <a name={item.id} onClick={this.editTaskClick}>edit</a>,
-                  <a name={item.id} onClick={this.deleteTaskClick}>delete</a>
-                ] : ''}
-              >
-                <List.Item.Meta
-                  avatar={!item.finish ? <Icon type="tag-o" style={{ fontSize: '25px' }} /> : <Icon type="check" style={{ fontSize: '25px' }} />}
-                  description={<b id={item.id} onClick={this.isFinishTag} style={{ cursor: 'pointer' }}>{item.value}</b>}
-                />
-                <div style={{ cursor: 'pointer', width: '100%' }}></div>
-              </List.Item>
-            )}
-          />
+          <Col span={24} style={{ padding: '10px', textAlign: 'center' }}>
+            <RadioGroup defaultValue="overview" onChange={this.radioConditionOnChange}>
+              <RadioButton value="overview">Overview</RadioButton>
+              <RadioButton value="finish">Finish</RadioButton>
+              <RadioButton value="unfinish">UnFinish</RadioButton>
+            </RadioGroup>
+            <Button onClick={this.clearFinishTask}>Clear Finish Task</Button>
+          </Col>
+          <Col span={24}>
+            <List
+              itemLayout="horizontal"
+              dataSource={conditionSelect === 'overview' ? todoListArrs : conditionDisplay}
+              renderItem={item => (
+                <List.Item
+                  actions={!isEdit ? [
+                    <a name={item.id} onClick={this.editTaskClick}>edit</a>,
+                    <a name={item.id} onClick={this.deleteTaskClick}>delete</a>
+                  ] : ''}
+                >
+                  <List.Item.Meta
+                    avatar={!item.finish ? <Icon type="tag-o" style={{ fontSize: '25px' }} /> : <Icon type="check" style={{ fontSize: '25px' }} />}
+                    description={<b id={item.id} onClick={!isEdit ? this.isFinishTag : null} style={{ cursor: 'pointer' }}>{item.value}</b>}
+                  />
+                  <div style={{ cursor: 'pointer', width: '100%' }}></div>
+                </List.Item>
+              )}
+            />
+          </Col>
         </Col>
         <Col span={7} />
       </Row>
