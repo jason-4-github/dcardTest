@@ -1,7 +1,9 @@
 import React from 'react';
 import { Layout, Menu, Icon } from 'antd';
+import { Route, Switch, Link } from 'react-router-dom';
 
 import TodoListContainer from './TodoListContainer';
+import ImageUploadContainer from './ImageUpload';
 const { Header, Content, Footer, Sider } = Layout;
 
 class AdminContainer extends React.Component {
@@ -12,18 +14,25 @@ class AdminContainer extends React.Component {
           <div className="logo">Home-Test</div>
           <Menu theme="dark" mode="inline" defaultSelectedKeys={['4']}>
             <Menu.Item key="1">
-              <Icon type="user" />
-              <span className="nav-text">TodoList</span>
+              <Link to={`/todoList`}>
+                <Icon type="user" />
+                <span className="nav-text">TodoList</span>
+              </Link>
             </Menu.Item>
             <Menu.Item key="2">
-              <Icon type="video-camera" />
-              <span className="nav-text">Image Upload</span>
+              <Link to={`/imageUpload`}>
+                <Icon type="video-camera" />
+                <span className="nav-text">Image Upload</span>
+              </Link>
             </Menu.Item>
           </Menu>
         </Sider>
         <Layout style={{ marginLeft: 200 }}>
           <Content style={{ height: '90vh' }}>
-            <TodoListContainer />
+            <Switch>
+              <Route path="/todoList" exact component={TodoListContainer} />
+              <Route path="/imageUpload" component={ImageUploadContainer} />
+            </Switch>
           </Content>
           <Footer style={{ textAlign: 'center' }}>
              ©2018 Jason Hsu

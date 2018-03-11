@@ -1,6 +1,7 @@
 import React from 'react';
 import { Upload, Icon, Modal, Button } from 'antd';
-import {Cropper} from 'react-image-cropper'
+import { Cropper } from 'react-image-cropper'
+import { Image, Transformation } from 'cloudinary-react';
 import _ from 'lodash';
 
 class ImageUpload extends React.Component {
@@ -20,7 +21,7 @@ class ImageUpload extends React.Component {
       croppedImg: '',
       imageLoaded: false,
     };
-    this.isCropClick2 = this.isCropClick2.bind(this);
+    this.finishCropClick = this.finishCropClick.bind(this);
   }
 
   handleCancel = () => this.setState({ previewVisible: false })
@@ -40,7 +41,7 @@ class ImageUpload extends React.Component {
     const { isCrop } = this.state;
     this.setState({ isCrop:  isCrop ? false : true });
   }
-  isCropClick2 (e) {
+  finishCropClick (e) {
     let node = this.cropper;
     console.log(this.state.fileList, e.target.value);
     this.setState({
@@ -88,14 +89,21 @@ class ImageUpload extends React.Component {
               ref={ ref => { this.cropper = ref;}}
               onChange={this.cropOnChange}
             />
-            : <img
+            : <div><img
               alt="example"
-              style={_.isEmpty(previewStyle) ? {width: "100%"} : previewStyle}
-              src={croppedImg || previewImage} />
+              style={!isCrop || _.isEmpty(previewStyle) ? {width: "100%"} : previewStyle}
+              src={croppedImg || previewImage}>
+                {/* <Transformation effect="pixelate_region" height="80" width="200" x="170" y="260" crop="fill" /> */}
+              </img>
+              <span style={{ height:"80px", width:"200px", left:"170px", top:"260px", color: "black" }}>jjjj</span>
+              {/* <Image>
+              <Transformation effect="pixelate_region" height="80" width="200" x="170" y="260" crop="fill" />
+              </Image> */}
+              </div>
           }
           <br />
           <Button onClick={this.isCropClick} style={{ marginTop: '10px' }}>Crop</Button>
-          {isCrop ? <Button onClick={this.isCropClick2}>Ok</Button> : null}
+          {isCrop ? <Button onClick={this.finishCropClick}>Ok</Button> : null}
         </Modal>
       </div>
     );

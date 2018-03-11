@@ -18,8 +18,8 @@ const routerSet = () => {
   return (
     <BrowserRouter>
       <Switch>
-        <Route path="/" exact component={AdminContainer} />
-        <Route path="/todoList" component={TodoListContainer} />
+        <Route path="/" component={AdminContainer} />
+        <Route path="/todoList" exact component={TodoListContainer} />
         <Route path="/imageUpload" component={ImageUploadContainer} />
       </Switch>
     </BrowserRouter>
