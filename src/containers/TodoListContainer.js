@@ -130,7 +130,6 @@ class TodoListContainer extends React.Component {
   }
 
   clearFinishTask = () => {
-    console.log('fff')
     const { todoListArrs, conditionDisplay, conditionSelect } = this.state;
     const tempTotalArrs = [];
     const tempOptionsArrs = [];
@@ -147,10 +146,10 @@ class TodoListContainer extends React.Component {
     const { inputText, isEdit, todoListArrs, conditionSelect, conditionDisplay } = this.state;
     const suffix = inputText ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
     return (
-      <Row>
-        <Col span={24} style={{ textAlign: 'center' }}><h1>Todo List</h1></Col>
-        <Col span={7} />
-        <Col span={10}>
+      <Row id="todoList-container">
+        <Col span={24} id="title"><h1>Todo List</h1></Col>
+        <Col xs={0} sm={4} md={4} lg={7} xl={7} />
+        <Col xs={24} sm={16} md={16} lg={10} xl={10}>
           <div style={{ display: 'flex' }}>
             <Input
               placeholder="Type Tasks Content Here"
@@ -160,15 +159,22 @@ class TodoListContainer extends React.Component {
               onChange={this.onChangeInputText}
               ref={node => this.userNameInput = node}
             />
-            <Button size={"large"} onClick={this.addTaskClick} disabled={isEdit || false}>Add Task</Button>
+            <Button size={"large"} type="primary" onClick={this.addTaskClick} disabled={isEdit || false}>Add Task</Button>
           </div>
           <Col span={24} style={{ padding: '10px', textAlign: 'center' }}>
-            <RadioGroup defaultValue="overview" onChange={this.radioConditionOnChange}>
-              <RadioButton value="overview">Overview</RadioButton>
-              <RadioButton value="finish">Finish</RadioButton>
-              <RadioButton value="unfinish">UnFinish</RadioButton>
-            </RadioGroup>
-            <Button onClick={this.clearFinishTask}>Clear Finish Task</Button>
+            <Col span={18} style={{ textAlign: 'left' }}>
+              <RadioGroup defaultValue="overview" onChange={this.radioConditionOnChange}>
+                <RadioButton value="overview">Overview</RadioButton>
+                <RadioButton value="finish">Finish</RadioButton>
+                <RadioButton value="unfinish">UnFinish</RadioButton>
+              </RadioGroup>
+            </Col>
+            <Col span={6}>
+              <Button onClick={this.clearFinishTask} type="primary">Clear Finish Task</Button>
+            </Col>
+            <Col span={24} style={{ textAlign: 'left' }}>
+              <h5>#點擊文字或icon可將該項目勾為完成狀態</h5>
+            </Col>
           </Col>
           <Col span={24}>
             <List
@@ -182,7 +188,9 @@ class TodoListContainer extends React.Component {
                   ] : ''}
                 >
                   <List.Item.Meta
-                    avatar={!item.finish ? <Icon type="tag-o" style={{ fontSize: '25px' }} /> : <Icon type="check" style={{ fontSize: '25px' }} />}
+                    avatar={!item.finish
+                      ? <Icon type="tag-o" id={item.id} onClick={!isEdit ? this.isFinishTag : null} style={{ fontSize: '25px', cursor: 'pointer' }} />
+                      : <Icon type="check" id={item.id} onClick={!isEdit ? this.isFinishTag : null} style={{ fontSize: '25px', cursor: 'pointer' }} />}
                     description={<b id={item.id} onClick={!isEdit ? this.isFinishTag : null} style={{ cursor: 'pointer' }}>{item.value}</b>}
                   />
                   <div style={{ cursor: 'pointer', width: '100%' }}></div>
@@ -191,7 +199,7 @@ class TodoListContainer extends React.Component {
             />
           </Col>
         </Col>
-        <Col span={7} />
+        <Col xs={0} sm={4} md={4} lg={7} xl={7} />
       </Row>
     );
   }

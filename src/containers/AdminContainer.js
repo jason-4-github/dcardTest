@@ -10,9 +10,10 @@ class AdminContainer extends React.Component {
   render() {
     return (
       <Layout id="admin-container">
-        <Sider style={{ overflow: 'auto', height: '100vh', position: 'fixed', left: 0 }}>
+        <Sider id="leftSider" breakpoint="lg"
+      collapsedWidth="50">
           <div className="logo">Home-Test</div>
-          <Menu theme="dark" mode="inline" defaultSelectedKeys={['4']}>
+          <Menu theme="dark" mode="inline">
             <Menu.Item key="1">
               <Link to={`/todoList`}>
                 <Icon type="user" />
@@ -27,14 +28,14 @@ class AdminContainer extends React.Component {
             </Menu.Item>
           </Menu>
         </Sider>
-        <Layout style={{ marginLeft: 200 }}>
+        <Layout id="layout">
           <Content style={{ height: '90vh' }}>
             <Switch>
               <Route path="/todoList" exact component={TodoListContainer} />
               <Route path="/imageUpload" component={ImageUploadContainer} />
             </Switch>
           </Content>
-          <Footer style={{ textAlign: 'center' }}>
+          <Footer id="footer">
              ©2018 Jason Hsu
           </Footer>
         </Layout>
