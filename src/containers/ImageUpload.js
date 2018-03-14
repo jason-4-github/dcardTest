@@ -9,8 +9,6 @@ class ImageUpload extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      previewVisible: false,
-      previewImage: '',
       fileList: [{
         uid: -1,
         name: 'xxx.png',
@@ -18,24 +16,31 @@ class ImageUpload extends React.Component {
         // url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png ',
         url: 'http://a1.att.hudong.com/86/38/300001140423130278388082725_950.jpg',
       }],
-      isCrop: false,
-      previewStyle: {},
+      previewImage: '',
       croppedImg: '',
+      imageUrl: '',
+      previewVisible: false,
+      isCrop: false,
       imageLoaded: false,
       isPixelated: false,
       isShadow: false,
-      shadowColor: {hex:'#000000', a:1, rgb:{}},
-      imageUrl: '',
+      previewStyle: {},
+      shadowColor: { hex:'#000000', a:1, rgb:{} },
     };
     this.finishCropClick = this.finishCropClick.bind(this);
   }
 
+  // close the modal
   handleCancel = () => this.setState({
     previewVisible: false,
     isCrop: false,
+    isPixelated: false,
+    isShadow: false,
    })
 
-  handlePreview = (file) => {
+  // show the cropped image or origin one
+  handlePreview = (file, d, e) => {
+    console.log(file, d, e);
     this.setState({
       previewImage: file.url || file.thumbUrl,
       previewVisible: true,
@@ -46,7 +51,6 @@ class ImageUpload extends React.Component {
 
   handleColorChange = (e) => {
     const { shadowColor } = this.state;
-    // const colorHex = `#${e.hex[1]}${e.hex[3]}${e.hex[5]}`
     shadowColor.hex = e.hex;
     shadowColor.rgb = _.omit(e.rgb, ['a']);
     this.setState({ shadowColor });
@@ -58,24 +62,28 @@ class ImageUpload extends React.Component {
     this.setState({ shadowColor });
   }
 
+  // save the cropping image
   cropOnChange = (e) => { this.setState({ previewStyle: e.display }) }
 
+  // save the entered url
   imageUrlOnChange = (e) => { this.setState({ imageUrl: e.target.value }); }
 
+  // click crop button
   isCropClick = () => {
     const { isCrop } = this.state;
     this.setState({ isCrop:  isCrop ? false : true });
   }
 
-  finishCropClick (e) {
+  // save the cropped image
+  finishCropClick () {
     let node = this.cropper;
-    console.log(this.state.fileList, e.target.value);
     this.setState({
       croppedImg: node.crop(),
       isCrop: false,
     })
   }
 
+  // add image by entered url
   addImageByUrl = () => {
     const { fileList, imageUrl } = this.state;
     const count = Object.keys(fileList).length;
@@ -83,17 +91,18 @@ class ImageUpload extends React.Component {
       uid: count + 1,
       name: `example${count}.png`,
       status: 'done',
-      // url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
       url: imageUrl,
     });
-    this.setState({ fileList });
+    this.setState({ fileList, imageUrl: '' });
   }
 
+  // switch the pixel style or not
   pixelateClick = () => {
     const { isPixelated } = this.state;
     this.setState({ isPixelated: isPixelated ? false : true });
   }
 
+  // switch the shadow style or not
   shadowClick = () => {
     const { isShadow } = this.state;
     this.setState({ isShadow: isShadow ? false : true });
@@ -102,14 +111,14 @@ class ImageUpload extends React.Component {
 
   render() {
     const { previewVisible, previewImage, fileList, previewStyle, isCrop,
-      croppedImg, isPixelated, isShadow, shadowColor } = this.state;
+      croppedImg, isPixelated, isShadow, shadowColor, imageUrl } = this.state;
     const uploadButton = (
       <div>
         <Icon type="plus" />
         <div className="ant-upload-text">Upload</div>
       </div>
     );
-    console.log(croppedImg);
+    console.log(previewImage);
     return (
       <Row className="clearfix">
       <Col span={4} />
@@ -118,14 +127,14 @@ class ImageUpload extends React.Component {
           <h1>UpLoad Image</h1>
         </Col>
         <Col span={16}>
-          <Input placeholder="Enter The Image Url" onChange={this.imageUrlOnChange} />
+          <Input placeholder="Enter The Image Url" value={imageUrl} onChange={this.imageUrlOnChange} />
         </Col>
         <Col span={8}>
           <Button onClick={this.addImageByUrl} >Add</Button>
         </Col>
         <Col span={24} style={{ paddingTop: '20px', textAlign: 'center' }}>
           <Upload
-            action="//jsonplaceholder.typicode.com/posts/"
+            action="https://jsonplaceholder.typicode.com/posts"
             listType="picture-card"
             fileList={fileList}
             onPreview={this.handlePreview}

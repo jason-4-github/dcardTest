@@ -49,6 +49,8 @@ class TodoListContainer extends React.Component {
     obj.finish = 0;
     obj.id = taskCount;
     todoListArrs.push(obj);
+
+    // let user also can add task when select on unfinish status
     if(conditionSelect === 'unfinish') conditionDisplay.push(obj);
     this.setState({
       inputText: '',
@@ -62,7 +64,6 @@ class TodoListContainer extends React.Component {
 
   // check edit finish
   isEditFinish = (e) => {
-    // console.log('ffff');
     const { todoListArrs, editOnChange } = this.state;
     const isItemIndex = _.findIndex(todoListArrs, (obj, key) => { return obj.id == e.target.name });
     const defaultValue = todoListArrs[isItemIndex].value.props.defaultValue;
@@ -95,9 +96,10 @@ class TodoListContainer extends React.Component {
 
   deleteTaskClick = (e) => {
     const { todoListArrs, conditionDisplay } = this.state;
+
+    // delete the item which click the delete button
     const leftObjs = _.remove(todoListArrs, (obj) => { return obj.id !== parseInt(e.target.name, 10)});
     const leftConditionObjs = conditionDisplay.length === 0 ? [] : _.remove(conditionDisplay, (obj) => { return obj.id !== parseInt(e.target.name, 10)});
-    // console.log(e.target.name, isItemIndex, parseInt(e.target.name, 10));
     this.setState({
       todoListArrs: leftObjs,
       conditionDisplay: leftConditionObjs,
@@ -114,6 +116,7 @@ class TodoListContainer extends React.Component {
     });
   }
 
+  // control the list status
   radioConditionOnChange = (e) => {
     const { todoListArrs } = this.state;
     const tempOptionsArrs = [];
@@ -122,7 +125,6 @@ class TodoListContainer extends React.Component {
       if (value.finish === 1 && e.target.value === 'finish') tempOptionsArrs.push(value);
       else if(value.finish === 0 && e.target.value === 'unfinish') tempOptionsArrs.push(value);
     });
-    console.log(tempOptionsArrs);
     this.setState({
       conditionSelect: e.target.value,
       conditionDisplay: tempOptionsArrs,
@@ -148,8 +150,8 @@ class TodoListContainer extends React.Component {
     return (
       <Row id="todoList-container">
         <Col span={24} id="title"><h1>Todo List</h1></Col>
-        <Col xs={0} sm={4} md={4} lg={7} xl={7} />
-        <Col xs={24} sm={16} md={16} lg={10} xl={10}>
+        <Col xs={1} sm={4} md={4} lg={7} xl={7} />
+        <Col xs={22} sm={16} md={16} lg={10} xl={10}>
           <div style={{ display: 'flex' }}>
             <Input
               placeholder="Type Tasks Content Here"
@@ -161,22 +163,22 @@ class TodoListContainer extends React.Component {
             />
             <Button size={"large"} type="primary" onClick={this.addTaskClick} disabled={isEdit || false}>Add Task</Button>
           </div>
-          <Col span={24} style={{ padding: '10px', textAlign: 'center' }}>
-            <Col span={18} style={{ textAlign: 'left' }}>
+          <Col span={24} style={{ padding: '10px', textAlign: 'left' }}>
+            <Col xs={24} sm={18}>
               <RadioGroup defaultValue="overview" onChange={this.radioConditionOnChange}>
                 <RadioButton value="overview">Overview</RadioButton>
                 <RadioButton value="finish">Finish</RadioButton>
                 <RadioButton value="unfinish">UnFinish</RadioButton>
               </RadioGroup>
             </Col>
-            <Col span={6}>
+            <Col xs={24} sm={6}>
               <Button onClick={this.clearFinishTask} type="primary">Clear Finish Task</Button>
             </Col>
-            <Col span={24} style={{ textAlign: 'left' }}>
+            <Col span={24}>
               <h5>#點擊文字或icon可將該項目勾為完成狀態</h5>
             </Col>
           </Col>
-          <Col span={24}>
+          <Col span={24} style={{ maxHeight: '70vh', overflowY: 'auto' }}>
             <List
               itemLayout="horizontal"
               dataSource={conditionSelect === 'overview' ? todoListArrs : conditionDisplay}
@@ -189,9 +191,15 @@ class TodoListContainer extends React.Component {
                 >
                   <List.Item.Meta
                     avatar={!item.finish
-                      ? <Icon type="tag-o" id={item.id} onClick={!isEdit ? this.isFinishTag : null} style={{ fontSize: '25px', cursor: 'pointer' }} />
-                      : <Icon type="check" id={item.id} onClick={!isEdit ? this.isFinishTag : null} style={{ fontSize: '25px', cursor: 'pointer' }} />}
-                    description={<b id={item.id} onClick={!isEdit ? this.isFinishTag : null} style={{ cursor: 'pointer' }}>{item.value}</b>}
+                      ? <Icon type="tag-o" id={item.id}
+                        onClick={!isEdit ? this.isFinishTag : null}
+                        style={{ fontSize: '25px', cursor: 'pointer' }} />
+                      : <Icon type="check" id={item.id}
+                        onClick={!isEdit ? this.isFinishTag : null}
+                        style={{ fontSize: '25px', cursor: 'pointer' }} />}
+                    description={<b id={item.id}
+                      onClick={!isEdit ? this.isFinishTag : null}
+                      style={{ cursor: 'pointer' }}>{item.value}</b>}
                   />
                   <div style={{ cursor: 'pointer', width: '100%' }}></div>
                 </List.Item>
@@ -199,7 +207,7 @@ class TodoListContainer extends React.Component {
             />
           </Col>
         </Col>
-        <Col xs={0} sm={4} md={4} lg={7} xl={7} />
+        <Col xs={1} sm={4} md={4} lg={7} xl={7} />
       </Row>
     );
   }
