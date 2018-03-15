@@ -152,10 +152,10 @@ class TodoListContainer extends React.Component {
         <Col span={24} id="title"><h1>Todo List</h1></Col>
         <Col xs={1} sm={4} md={4} lg={7} xl={7} />
         <Col xs={22} sm={16} md={16} lg={10} xl={10}>
-          <div style={{ display: 'flex' }}>
+          <div id="inputUrl">
             <Input
               placeholder="Type Tasks Content Here"
-              prefix={<Icon type="edit" style={{ color: 'rgba(0,0,0,.25)' }} />}
+              prefix={<Icon type="edit" id="inputTextIcon" />}
               suffix={suffix}
               value={inputText}
               onChange={this.onChangeInputText}
@@ -163,7 +163,7 @@ class TodoListContainer extends React.Component {
             />
             <Button size={"large"} type="primary" onClick={this.addTaskClick} disabled={isEdit || false}>Add Task</Button>
           </div>
-          <Col span={24} style={{ padding: '10px', textAlign: 'left' }}>
+          <Col span={24} id="optionsRow">
             <Col xs={24} sm={18}>
               <RadioGroup defaultValue="overview" onChange={this.radioConditionOnChange}>
                 <RadioButton value="overview">Overview</RadioButton>
@@ -178,7 +178,7 @@ class TodoListContainer extends React.Component {
               <h5>#點擊文字或icon可將該項目勾為完成狀態</h5>
             </Col>
           </Col>
-          <Col span={24} style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+          <Col span={24} id="listRow">
             <List
               itemLayout="horizontal"
               dataSource={conditionSelect === 'overview' ? todoListArrs : conditionDisplay}
@@ -193,15 +193,14 @@ class TodoListContainer extends React.Component {
                     avatar={!item.finish
                       ? <Icon type="tag-o" id={item.id}
                         onClick={!isEdit ? this.isFinishTag : null}
-                        style={{ fontSize: '25px', cursor: 'pointer' }} />
+                        className="listItemIcon" />
                       : <Icon type="check" id={item.id}
                         onClick={!isEdit ? this.isFinishTag : null}
-                        style={{ fontSize: '25px', cursor: 'pointer' }} />}
+                        className="listItemIcon" />}
                     description={<b id={item.id}
                       onClick={!isEdit ? this.isFinishTag : null}
-                      style={{ cursor: 'pointer' }}>{item.value}</b>}
+                      className="itemText">{item.value}</b>}
                   />
-                  <div style={{ cursor: 'pointer', width: '100%' }}></div>
                 </List.Item>
               )}
             />

@@ -182,84 +182,84 @@ class ImageUpload extends React.Component {
     const isImageShadow = currentImageStatus[currentKey] ? currentImageStatus[currentKey].shadow : false;
 
     return (
-      <Row className="clearfix">
-      <Col span={4} />
-      <Col span={16}>
-        <Col span={24} style={{ textAlign: 'center' }}>
-          <h1>UpLoad Image</h1>
-        </Col>
+      <Row id="imageUpload-container">
+        <Col span={4} />
         <Col span={16}>
-          <Input placeholder="Enter The Image Url" value={imageUrl} onChange={this.imageUrlOnChange} />
-        </Col>
-        <Col span={8}>
-          <Button onClick={this.addImageByUrl} >Add</Button>
-        </Col>
-        <Col span={24} style={{ paddingTop: '20px', textAlign: 'center' }}>
-          <Upload
-            action="https://jsonplaceholder.typicode.com/posts"
-            listType="picture-card"
-            fileList={fileList}
-            onPreview={this.handlePreview}
-            onChange={this.handleChange}
-            onRemove={this.deleteClick}
-          >
-            <div>
-              <Icon type="plus" />
-              <div className="ant-upload-text">Upload</div>
-            </div>
-          </Upload>
-        </Col>
-        <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel} style={{ height: '100%' }}>
-          {isCrop
-            ? <Cropper
-              src={previewImage[currentKey] ? previewImage[currentKey].cropped : null}
-              ref={ ref => { this.cropper = ref;}}
-              onChange={this.cropOnChange}
-            />
-            : <svg width="100%" height="65vh">
-              <defs>
-                <filter id="pixelate" x="0" y="0" width="1" height="1">
-                  <feFlood x="4" y="4" height="2" width="2"/>
-                  <feComposite width="10" height="10"/>
-                  <feTile result="a"/>
-                  <feComposite in="SourceGraphic" in2="a" operator="in"/>
-                  <feMorphology operator="dilate" radius="5"/>
-                </filter>
-                <filter id="shadow">
-                  <feGaussianBlur in="SourceGraphic" stdDeviation="12" />
-                </filter>
-              </defs>
-              <image
-                alt="example"
-                style={!isCrop || _.isEmpty(previewStyle) ? {width: "100%"} : previewStyle}
-                xlinkHref={previewImage[currentKey] ? previewImage[currentKey].cropped : null}
-                filter={isImagePixelate ? (isImagePixelate ? "url(#pixelate)" : null) : null}>
-              </image>
-              { isImageShadow ? <rect x="0" y="0" width="100%" height="100%"
-                style={{ stroke:"#000000", fill:shadowColor.hex, filter:"url(#shadow)",
-                fillOpacity: shadowColor.a }} /> : ''}
-            </svg>
-          }
-          <br />
-          <Button onClick={this.isCropClick} style={{ marginTop: '10px' }}>Crop</Button>
-          {isCrop ? <Button onClick={this.finishCropClick}>Ok</Button> : null}
-          <Button onClick={this.pixelateClick} style={{ marginTop: '10px' }}>Pixelate</Button>
-          <Button onClick={this.shadowClick} style={{ marginTop: '10px' }}>Shadow</Button>
-          { isImageShadow
-            ? <div><HuePicker color={shadowColor.hex} onChange={this.handleColorChange} />
-              <Slider
-                min={0}
-                max={1}
-                style={{ width: '60%' }}
-                onChange={this.handleAlphaChange}
-                value={shadowColor.a}
-                step={0.01}
-              />
+          <Col span={24} id="title">
+            <h1>UpLoad Image</h1>
+          </Col>
+          <Col span={16}>
+            <Input placeholder="Enter The Image Url" value={imageUrl} onChange={this.imageUrlOnChange} />
+          </Col>
+          <Col span={8}>
+            <Button onClick={this.addImageByUrl} >Add</Button>
+          </Col>
+          <Col span={24} id="uploadBlock">
+            <Upload
+              action="https://jsonplaceholder.typicode.com/posts"
+              listType="picture-card"
+              fileList={fileList}
+              onPreview={this.handlePreview}
+              onChange={this.handleChange}
+              onRemove={this.deleteClick}
+            >
+              <div>
+                <Icon type="plus" />
+                <div className="ant-upload-text">Upload</div>
               </div>
-            : null }
-        </Modal>
-      </Col>
-      <Col span={4} />
+            </Upload>
+          </Col>
+          <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel} style={{ height: '100%' }}>
+            {isCrop
+              ? <Cropper
+                src={previewImage[currentKey] ? previewImage[currentKey].cropped : null}
+                ref={ ref => { this.cropper = ref;}}
+                onChange={this.cropOnChange}
+              />
+              : <svg width="100%" height="65vh">
+                <defs>
+                  <filter id="pixelate" x="0" y="0" width="1" height="1">
+                    <feFlood x="4" y="4" height="2" width="2"/>
+                    <feComposite width="10" height="10"/>
+                    <feTile result="a"/>
+                    <feComposite in="SourceGraphic" in2="a" operator="in"/>
+                    <feMorphology operator="dilate" radius="5"/>
+                  </filter>
+                  <filter id="shadow">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="12" />
+                  </filter>
+                </defs>
+                <image
+                  alt="example"
+                  style={!isCrop || _.isEmpty(previewStyle) ? {width: "100%"} : previewStyle}
+                  xlinkHref={previewImage[currentKey] ? previewImage[currentKey].cropped : null}
+                  filter={isImagePixelate ? (isImagePixelate ? "url(#pixelate)" : null) : null}>
+                </image>
+                { isImageShadow ? <rect x="0" y="0" width="100%" height="100%"
+                  style={{ stroke:"#000000", fill:shadowColor.hex, filter:"url(#shadow)",
+                  fillOpacity: shadowColor.a }} /> : ''}
+              </svg>
+            }
+            <br />
+            <Button onClick={this.isCropClick} className="buttonStyle">Crop</Button>
+            {isCrop ? <Button onClick={this.finishCropClick}>Ok</Button> : null}
+            <Button onClick={this.pixelateClick} className="buttonStyle">Pixelate</Button>
+            <Button onClick={this.shadowClick} className="buttonStyle">Shadow</Button>
+            { isImageShadow
+              ? <div><HuePicker color={shadowColor.hex} onChange={this.handleColorChange} />
+                <Slider
+                  min={0}
+                  max={1}
+                  style={{ width: '60%' }}
+                  onChange={this.handleAlphaChange}
+                  value={shadowColor.a}
+                  step={0.01}
+                />
+                </div>
+              : null }
+          </Modal>
+        </Col>
+        <Col span={4} />
       </Row>
     );
   }
