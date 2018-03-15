@@ -1,31 +1,23 @@
 import React from 'react';
-import { Upload, Icon, Modal, Button, Slider, Input, Row, Col } from 'antd';
+import { Upload, Icon, Modal, Button, Slider, Input, Row, Col, message } from 'antd';
 import { Cropper } from 'react-image-cropper'
 import _ from 'lodash';
-import { isAbsolute } from 'path';
 import { HuePicker } from 'react-color';
 
 class ImageUpload extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      fileList: [{
-        uid: -1,
-        name: 'xxx.png',
-        status: 'done',
-        // url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png ',
-        url: 'http://a1.att.hudong.com/86/38/300001140423130278388082725_950.jpg',
-      }],
-      previewImage: '',
-      croppedImg: '',
+      fileList: [],
+      currentKey: 0,
+      previewImage: [],
       imageUrl: '',
       previewVisible: false,
       isCrop: false,
-      imageLoaded: false,
-      isPixelated: false,
-      isShadow: false,
+      isDelete: false,
       previewStyle: {},
       shadowColor: { hex:'#000000', a:1, rgb:{} },
+      currentImageStatus: [],
     };
     this.finishCropClick = this.finishCropClick.bind(this);
   }
@@ -34,20 +26,49 @@ class ImageUpload extends React.Component {
   handleCancel = () => this.setState({
     previewVisible: false,
     isCrop: false,
-    isPixelated: false,
-    isShadow: false,
    })
 
   // show the cropped image or origin one
-  handlePreview = (file, d, e) => {
-    console.log(file, d, e);
+  // previewImage : [{cropped, origin, uid}]
+  handlePreview = (file) => {
+    const { previewImage } = this.state;
+    let currentKey = 0;
+
+    _.map(previewImage, (value, key) => { if (value.uid === file.uid) { currentKey = key; } });
+
     this.setState({
-      previewImage: file.url || file.thumbUrl,
+      currentKey,
       previewVisible: true,
     });
   }
 
-  handleChange = ({ fileList }) => {this.setState({ fileList })}
+  // upload function
+  handleChange = ({ fileList }) => {
+    const { previewImage, currentImageStatus, isDelete, currentKey } = this.state;
+    const newfile = _.last(fileList);
+    if (newfile.status !== 'uploading' && !isDelete) {
+      const tempObj = {};
+
+      tempObj.cropped = newfile.thumbUrl;
+      tempObj.origin = tempObj.cropped;
+      tempObj.uid = newfile.uid;
+      previewImage.push(tempObj);
+
+      currentImageStatus.push({
+        pixelate: false,
+        shadow: false,
+      });
+    } else if(newfile.status !== 'uploading') {
+      previewImage.splice(currentKey, 1);
+      currentImageStatus.splice(currentKey, 1);
+    }
+    this.setState({
+      fileList,
+      previewImage,
+      currentImageStatus,
+      isDelete: false,
+    })
+  }
 
   handleColorChange = (e) => {
     const { shadowColor } = this.state;
@@ -76,16 +97,25 @@ class ImageUpload extends React.Component {
 
   // save the cropped image
   finishCropClick () {
+    const { previewImage, currentKey } = this.state;
     let node = this.cropper;
+
+    if (node.crop() !== 'data:,') previewImage[currentKey].cropped = node.crop();
+
     this.setState({
-      croppedImg: node.crop(),
+      previewImage,
       isCrop: false,
     })
   }
 
   // add image by entered url
   addImageByUrl = () => {
-    const { fileList, imageUrl } = this.state;
+    const { fileList, imageUrl, previewImage, currentImageStatus } = this.state;
+    if (imageUrl.match(/\.(jpeg|jpg|gif|png)$/) === null) {
+      message.error('please check your image address!', 2);
+      return;
+    }
+
     const count = Object.keys(fileList).length;
     fileList.push({
       uid: count + 1,
@@ -93,32 +123,64 @@ class ImageUpload extends React.Component {
       status: 'done',
       url: imageUrl,
     });
-    this.setState({ fileList, imageUrl: '' });
+    previewImage.push({
+      cropped: imageUrl,
+      origin: imageUrl,
+      uid: count + 1,
+    });
+    currentImageStatus.push({
+      pixelate: false,
+      shadow: false,
+    });
+
+    this.setState({
+      fileList,
+      previewImage,
+      currentImageStatus,
+      imageUrl: ''
+    });
   }
 
   // switch the pixel style or not
   pixelateClick = () => {
-    const { isPixelated } = this.state;
-    this.setState({ isPixelated: isPixelated ? false : true });
+    const { currentImageStatus, currentKey } = this.state;
+    currentImageStatus[currentKey].pixelate = currentImageStatus[currentKey].pixelate
+      ? false : true;
+    this.setState({
+      currentImageStatus,
+    });
   }
 
   // switch the shadow style or not
   shadowClick = () => {
-    const { isShadow } = this.state;
-    this.setState({ isShadow: isShadow ? false : true });
+    const { currentImageStatus, currentKey } = this.state;
+    currentImageStatus[currentKey].shadow = currentImageStatus[currentKey].shadow
+      ? false : true;
+    this.setState({
+      currentImageStatus
+    });
+  }
+
+  // cleck the delete icon on photo
+  deleteClick = (file) => {
+    const { previewImage } = this.state;
+    let currentKey = 0;
+
+    _.map(previewImage, (value, key) => { if (value.uid === file.uid) { currentKey = key; } });
+
+    this.setState({
+      isDelete: true,
+      currentKey
+    });
   }
 
 
   render() {
     const { previewVisible, previewImage, fileList, previewStyle, isCrop,
-      croppedImg, isPixelated, isShadow, shadowColor, imageUrl } = this.state;
-    const uploadButton = (
-      <div>
-        <Icon type="plus" />
-        <div className="ant-upload-text">Upload</div>
-      </div>
-    );
-    console.log(previewImage);
+      currentKey, shadowColor, imageUrl, currentImageStatus } = this.state;
+    const isImagePixelate = currentImageStatus[currentKey] ? currentImageStatus[currentKey].pixelate : false;
+    const isImageShadow = currentImageStatus[currentKey] ? currentImageStatus[currentKey].shadow : false;
+
     return (
       <Row className="clearfix">
       <Col span={4} />
@@ -139,14 +201,18 @@ class ImageUpload extends React.Component {
             fileList={fileList}
             onPreview={this.handlePreview}
             onChange={this.handleChange}
+            onRemove={this.deleteClick}
           >
-            {uploadButton}
+            <div>
+              <Icon type="plus" />
+              <div className="ant-upload-text">Upload</div>
+            </div>
           </Upload>
         </Col>
         <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel} style={{ height: '100%' }}>
           {isCrop
             ? <Cropper
-              src={croppedImg || previewImage}
+              src={previewImage[currentKey] ? previewImage[currentKey].cropped : null}
               ref={ ref => { this.cropper = ref;}}
               onChange={this.cropOnChange}
             />
@@ -166,10 +232,10 @@ class ImageUpload extends React.Component {
               <image
                 alt="example"
                 style={!isCrop || _.isEmpty(previewStyle) ? {width: "100%"} : previewStyle}
-                xlinkHref={croppedImg || previewImage}
-                filter={isPixelated ? "url(#pixelate)" : null}>
+                xlinkHref={previewImage[currentKey] ? previewImage[currentKey].cropped : null}
+                filter={isImagePixelate ? (isImagePixelate ? "url(#pixelate)" : null) : null}>
               </image>
-              { isShadow ? <rect x="0" y="0" width="100%" height="100%"
+              { isImageShadow ? <rect x="0" y="0" width="100%" height="100%"
                 style={{ stroke:"#000000", fill:shadowColor.hex, filter:"url(#shadow)",
                 fillOpacity: shadowColor.a }} /> : ''}
             </svg>
@@ -179,7 +245,7 @@ class ImageUpload extends React.Component {
           {isCrop ? <Button onClick={this.finishCropClick}>Ok</Button> : null}
           <Button onClick={this.pixelateClick} style={{ marginTop: '10px' }}>Pixelate</Button>
           <Button onClick={this.shadowClick} style={{ marginTop: '10px' }}>Shadow</Button>
-          { isShadow
+          { isImageShadow
             ? <div><HuePicker color={shadowColor.hex} onChange={this.handleColorChange} />
               <Slider
                 min={0}

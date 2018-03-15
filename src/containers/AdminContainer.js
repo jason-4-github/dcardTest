@@ -4,7 +4,7 @@ import { Route, Switch, Link } from 'react-router-dom';
 
 import TodoListContainer from './TodoListContainer';
 import ImageUploadContainer from './ImageUpload';
-const { Header, Content, Footer, Sider } = Layout;
+const { Content, Footer, Sider } = Layout;
 
 class AdminContainer extends React.Component {
   constructor(props) {

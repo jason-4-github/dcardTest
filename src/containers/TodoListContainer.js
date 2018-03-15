@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Input, Icon, Row, Col, List, Avatar, Button, Radio, message } from 'antd';
+import { Input, Icon, Row, Col, List, Button, Radio, message } from 'antd';
 import _ from 'lodash';
 
 const RadioButton = Radio.Button;
